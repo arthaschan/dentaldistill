@@ -12,7 +12,7 @@
 | 中文全科 | DeepSeek-V4-flash | Qwen2.5-14B | CMExam 全科重分割 | 4608 / 991 / 991 |
 | 中文牙科 | DeepSeek-V4-flash | Qwen3-32B | CMExam「口腔医学」学科 | 580 / 125 / 125 |
 | 英文全科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA + MMLU（无印度） | 9151 / 1017 / 4110 |
-| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA+MMLU 牙科 + 3 本书 | 待书籍并入后更新 |
+| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA+MMLU 牙科 + 3 本书 | 497 / 26 / 85 |
 
 > 训练参数（四场景统一）：Choice-Head 蒸馏，α=0（纯标准答案监督）；LoRA rank16/alpha32；lr 1e-4；batch 1×8；1 epoch。唯一差异：Llama-3.3-70B 用 QLoRA 4bit。
 

@@ -53,15 +53,16 @@ for name in ["train", "val", "test"]:
     splits[name] = dental
     print(f"en_general/{name}: {len(rows)} -> 牙科 {len(dental)}（筛掉 {dropped}）")
 
-# 2) 并入书籍（若 books/ 已有提取产物）
+# 2) 并入书籍（若 books/ 已有规整后的单选池）
 book_dental = []
-for fname in ["books_bof.jsonl", "books_nbde.jsonl", "books_mcq.jsonl"]:
-    p = os.path.join(BOOKS_DIR, fname)
-    if os.path.exists(p):
-        rows = load(p)
-        kept = [r for r in rows if is_dental_record(r)[0]]
-        book_dental += kept
-        print(f"并入 {fname}: {len(rows)} -> 牙科 {len(kept)}")
+single_path = os.path.join(BOOKS_DIR, "books_singlebest.jsonl")
+if os.path.exists(single_path):
+    rows = load(single_path)
+    kept = [r for r in rows if is_dental_record(r)[0]]
+    book_dental += kept
+    print(f"并入 books_singlebest.jsonl: {len(rows)} -> 牙科 {len(kept)}")
+else:
+    print("（books/books_singlebest.jsonl 不存在；先跑 books/extract_*.py + books/normalize_books.py）")
 if book_dental:
     existing_uids = {r.get("uid") for r in splits["train"] + splits["val"] + splits["test"]}
     test_uids = {r.get("uid") for r in splits["test"]}

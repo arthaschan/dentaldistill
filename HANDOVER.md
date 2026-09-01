@@ -81,10 +81,16 @@ python3 data/check_dental_subset.py data/en_dental/test.jsonl     # 应 [PASS]
 
 ---
 
-## 7. 待办（交接给下一轮）
+## 7. 落地状态（已完成 / 待办）
 
-- [ ] 移植 `shared/train_choice_head_distill.py` 到 `shared/`
-- [ ] 各 `experiments/<场景>/` 的 run_train/run_eval 脚本 + README
-- [ ] `books/` 提取 3 本教材并并入英文牙科数据
-- [ ] `ablation/` 消融实验
-- [ ] 在 GPU 环境重跑训练/评估，落地本仓库自己的数字
+已完成：
+- [x] `shared/train_choice_head_distill.py` + `shared/eval_choice_head.py`（统一评估）
+- [x] 各 `experiments/<场景>/` 的 run_train 脚本 + README（含参数/数据/复现）
+- [x] `books/` 提取 3 本教材 + 规整 + 并入英文牙科（train 497 = 219 + 书籍 278）
+- [x] `ablation/` 消融网格脚本 + 文档
+- [x] 牙科判定 + 检查工具（cn_dental / en_dental 三集均 [PASS]）
+
+待办（需 GPU/API 环境）：
+- [ ] 在 GPU 环境重跑 4 场景训练/评估，落地本仓库自己的数字
+- [ ] 跑 `ablation/run_ablation.sh`，确认 α=0/rank16/lr1e-4 最优
+- [ ] 中文全科/牙科的 DeepSeek 教师零样本需调 API 生成（`shared/generate_teacher_labels_api.py`）
