@@ -1,0 +1,26 @@
+# ── dentaldistill 提交策略 ──
+# 版权教材 PDF（不可重分发）
+*.pdf
+
+# 模型训练产物 / checkpoint / LoRA adapter（可由脚本重训，体积 GB 级）
+**/runs/
+**/checkpoints/
+**/best/
+**/outputs/
+
+# 数据集：派生自版权书籍/CMExam 的题目文本，不公开重分发（可由脚本重建）
+*.jsonl
+data/*.jsonl
+books/*.jsonl
+
+# 日志
+*.log
+logs/
+
+# 本地环境变量（含 API key）
+setup.env
+
+# Python
+__pycache__/
+*.pyc
+.DS_Store

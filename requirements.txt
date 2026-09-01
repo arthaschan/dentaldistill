@@ -1,0 +1,13 @@
+# dentaldistill 依赖（测试环境：python 3.12 / torch 2.9.1+cu128 / transformers 4.57.6 / peft 0.7.1）
+# 若使用 anaconda 环境，直接用 $HOME/anaconda3/bin/python3 即可，无需重装。
+
+torch>=2.9.0
+transformers>=4.57.0
+peft>=0.7.0
+accelerate>=0.30.0
+datasets>=2.19.0
+sentencepiece
+# QLoRA 4bit（Llama-70B 需要）
+bitsandbytes>=0.43.0
+# 可选：PDF 文本提取（书籍处理）
+# pdftotext（poppler-utils，系统级）
