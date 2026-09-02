@@ -14,7 +14,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from dental_filter import is_dental_record, question_text  # noqa: E402
+from dental_filter import is_dental_record_strict, question_text  # noqa: E402
 
 OUT = os.path.join(os.path.dirname(__file__), "en_dental")
 EN_GEN = os.path.join(os.path.dirname(__file__), "en_general")
@@ -45,7 +45,7 @@ for name in ["train", "val", "test"]:
     rows = load(os.path.join(EN_GEN, f"{name}.jsonl"))
     dental, dropped = [], 0
     for r in rows:
-        ok, hits = is_dental_record(r)
+        ok, hits = is_dental_record_strict(r)
         if ok:
             dental.append(r)
         else:
@@ -58,9 +58,9 @@ book_dental = []
 single_path = os.path.join(BOOKS_DIR, "books_singlebest.jsonl")
 if os.path.exists(single_path):
     rows = load(single_path)
-    kept = [r for r in rows if is_dental_record(r)[0]]
+    kept = [r for r in rows if is_dental_record_strict(r)[0]]
     book_dental += kept
-    print(f"并入 books_singlebest.jsonl: {len(rows)} -> 牙科 {len(kept)}")
+    print(f"并入 books_singlebest.jsonl: {len(rows)} -> 牙科(R1严格) {len(kept)}")
 else:
     print("（books/books_singlebest.jsonl 不存在；先跑 books/extract_*.py + books/normalize_books.py）")
 if book_dental:

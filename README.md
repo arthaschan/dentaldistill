@@ -10,11 +10,24 @@
 | 场景 | 老师 | 学生 | 数据来源 | train/val/test |
 |---|---|---|---|---|
 | 中文全科 | DeepSeek-V4-flash | Qwen2.5-14B | CMExam 全科重分割 | 4608 / 991 / 991 |
-| 中文牙科 | DeepSeek-V4-flash | Qwen3-32B | CMExam「口腔医学」学科 | 580 / 125 / 125 |
-| 英文全科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA + MMLU（无印度） | 9151 / 1017 / 4110 |
-| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA+MMLU 牙科 + 3 本书 | 497 / 26 / 85 |
+| 中文牙科 | DeepSeek-V4-flash | Qwen2.5-32B | CMExam「口腔医学」学科 → 干净集 | 381 / 80 / 84 |
+| 英文全科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA + MMLU（无印度）+ 2 本书 | 9789 / 1017 / 4110 |
+| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | MedQA+MMLU 牙科 + 2 本书（R1 严格） | 566 / 26 / 84 |
 
 > 训练参数（四场景统一）：Choice-Head 蒸馏，α=0（纯标准答案监督）；LoRA rank16/alpha32；lr 1e-4；batch 1×8；1 epoch。唯一差异：Llama-3.3-70B 用 QLoRA 4bit。
+
+---
+
+## 当前结果（2026-09-02）
+
+| 场景 | 教师(零样本) | 学生 | 结论 |
+|---|---|---|---|
+| 中文牙科(84 干净) | DeepSeek-V4-flash 86.90% | Qwen2.5-32B 86.90%（3seed） | **打平**（Qwen3-32B 仅 79.76%） |
+| 英文全科(4110) | Qwen3-32B 80.22% | Qwen2.5-32B 82.09% / Llama-70B 81.39% | **双超越** ✅ |
+| 英文牙科(84 严格) | Qwen3-32B 66.67% | Llama-70B 67.86%（3seed） / Qwen2.5-32B 64.29% | 仅 Llama 微弱超 ⚠️ |
+
+> 完整结果与复现见 `TASK_STATUS.md` 与各 `experiments/*/RESULTS_*.md`。
+> 牙科数据「无非牙科」已核实：`python3 data/check_no_nondental.py`（退出码 0），见 `reports/data_check_report.md`。
 
 ---
 
@@ -74,3 +87,21 @@ dentaldistill/
 ## 一个重要背景：牙科子集的 "oral" 误判已修复
 
 旧 mentalDistill 用 `\boral\b` 关键词筛牙科，把"oral = 口服/oral medication"的题误判成牙科（实测英文牙科 501 题里 311 道是非牙科）。本仓库用**收紧后的判定**（强关键词 + "oral" 口腔语境，裸 "oral" 排除）+ **学科字段**（中文「口腔医学」、MedMCQA「Dental」），并提供 `check_dental_subset.py` 逐题审计。详见 `PLAN.md` 第 3 节。
+
+---
+
+## 另一个重要背景：中文牙科学科字段「口腔医学」也不可靠（2026-09-01 检测发现）
+
+中文牙科按 `Medical Discipline == "口腔医学"` 拆分，但该字段是口腔执业医师的**整卷分类**，
+含大量通科医学题（药理学/儿科学/妇产科学/统计学/卫生法规/医学伦理/传染病学等）。内容级检测
+（`data/check_cn_dental_content.py`）发现 **约 35%–42% 是非牙科**。已产出干净子集
+`data/cn_dental_clean/`（train 381 / val 80 / test 84，扩充关键词 + 临床科室=口腔科信号重筛），
+训练/消融改用此集。详见 `reports/cn_dental_rescreen_report.md` 与 `reports/data_check_report.md`。
+
+---
+
+## 三本书（books/）题目情况与安排
+
+3 本牙科教材：Best of Fives（单选 272）、NBDE（单选 366）、MCQs for Dentistry（**true/false
+多选 401**）。单选并入英文牙科 train（净 +278）；**多选与单候选任务格式不兼容（训练给错监督、
+评估不可评分），不并入**。详见 `books/BOOKS_ARRANGEMENT.md`。

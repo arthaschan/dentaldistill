@@ -15,9 +15,11 @@
 | 场景 | 老师 | 学生 | train/val/test | 历史结果（mentalDistill 口径） |
 |---|---|---|---|---|
 | 中文全科 | DeepSeek-V4-flash | Qwen2.5-14B | 4608/991/991 | 学生 88.67% vs 老师 87.18%（+1.49） |
-| 中文牙科 | DeepSeek-V4-flash | Qwen3-32B | 580/125/125 | 学生 82.40%±0.80 vs 老师 79.20%（+3.20，3-seed 全超） |
-| 英文全科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | 9151/1017/4110 | 82.19% / 82.09% vs 80.22%（+1.97/+1.87） |
-| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | 待书籍并入 | **旧结果作废**（见 §5 oral 误判） |
+| 中文牙科 | DeepSeek-V4-flash | Qwen2.5-32B | 381/80/84（干净集） | 旧 82.40%±0.80 vs 79.20%（+3.20）为污染口径，作废 |
+| 英文全科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | 9789/1017/4110 | 82.19% / 82.09% vs 80.22%（+1.97/+1.87） |
+| 英文牙科 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B | 566/26/84（R1 严格） | 旧结果作废（见 §5 oral 误判） |
+
+> 当前（本仓库）结果见 `TASK_STATUS.md`：中文牙科 Qwen2.5-32B 86.90% 打平教师；英文全科双超越；英文牙科仅 Llama 微弱超。
 
 > 注意：英文牙科的旧结果（75.65%/80.64% vs 72.46%）是在被 "oral" 污染的 501 题测试集上算的，本仓库**作废并重做**。
 
@@ -86,11 +88,12 @@ python3 data/check_dental_subset.py data/en_dental/test.jsonl     # 应 [PASS]
 已完成：
 - [x] `shared/train_choice_head_distill.py` + `shared/eval_choice_head.py`（统一评估）
 - [x] 各 `experiments/<场景>/` 的 run_train 脚本 + README（含参数/数据/复现）
-- [x] `books/` 提取 3 本教材 + 规整 + 并入英文牙科（train 497 = 219 + 书籍 278）
-- [x] `ablation/` 消融网格脚本 + 文档
-- [x] 牙科判定 + 检查工具（cn_dental / en_dental 三集均 [PASS]）
+- [x] `books/` 提取 3 本教材 + 规整 + 并入英文全科/牙科（en_dental train 566 = MedQA 200 + MMLU 1 + BoF 142 + NBDE 223）
+- [x] `ablation/` 消融网格脚本 + 文档（含中文牙科 Qwen3/Qwen2.5、英文牙科 Qwen2.5 细扫）
+- [x] 牙科判定 + 检查工具 + 「无非牙科」终检（`data/check_no_nondental.py`，退出码 0）
+- [x] 4 场景训练/评估已落地本仓库数字（见 `TASK_STATUS.md` 与各 `RESULTS_*.md`）
+- [x] 中文牙科教师 DeepSeek 零样本已调 API 生成（`teachers/`）
 
-待办（需 GPU/API 环境）：
-- [ ] 在 GPU 环境重跑 4 场景训练/评估，落地本仓库自己的数字
-- [ ] 跑 `ablation/run_ablation.sh`，确认 α=0/rank16/lr1e-4 最优
-- [ ] 中文全科/牙科的 DeepSeek 教师零样本需调 API 生成（`shared/generate_teacher_labels_api.py`）
+待办（GPU 续跑）：
+- [ ] 英文牙科 Qwen2.5-32B 最优 rank8/lr3e-4/e1 跑 3 seed 坐实（`experiments/en_dental/scripts/run_train_qwen25_best_3seed.sh`，已备好）
+- [ ] 英文牙科 Llama-70B 细扫续跑（`ablation/run_sweep_en_dental_llama70b.sh`，断点跳过）→ 找最优 → 3 seed 坐实

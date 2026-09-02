@@ -11,8 +11,8 @@
 |---|---|---|---|---|---|---|---|
 | 中文全科 | `experiments/cn_general` | CMExam 全科重分割 | 4608 | 991 | 991 | DeepSeek-V4-flash | Qwen2.5-14B |
 | 中文牙科 | `experiments/cn_dental` | CMExam「口腔医学」学科 | 580 | 125 | 125 | DeepSeek-V4-flash | Qwen3-32B |
-| 英文全科 | `experiments/en_general` | MedQA + MMLU（无印度） | ~9k | ~1k | 4110 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B |
-| 英文牙科 | `experiments/en_dental` | MedQA+MMLU 牙科 + 3 本书 | 待切 | 待切 | 待切 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B |
+| 英文全科 | `experiments/en_general` | MedQA + MMLU（无印度）+ 2 本书 | 9789 | 1017 | 4110 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B |
+| 英文牙科 | `experiments/en_dental` | MedQA+MMLU 牙科 + 2 本书 | 603 | 30 | 93 | Qwen3-32B | Qwen2.5-32B / Llama-3.3-70B |
 
 > 训练参数（四场景统一）：Choice-Head 蒸馏，α=0；LoRA rank16/alpha32；lr 1e-4；batch 1×8；1 epoch；Llama-70B 用 QLoRA 4bit。
 
@@ -34,10 +34,16 @@
 ### 2.2 中文牙科（CMExam「口腔医学」学科）
 - 上游：同 2.1 的 CMExam 全科，按 `Medical Discipline == "口腔医学"` 拆出牙科。
 - 条数：train 580 / val 125 / test 125（= mentalDistill 22 的 580 + val_dental 125 + test_dental 125，总量 830）
-- **拆分方法（中文牙科）**：直接用学科字段，**不靠关键词**——这是中文牙科最可靠、无 "oral" 误判风险的来源。
+- **⚠️ 拆分方法修正（2026-09-01 检测发现）**：学科字段 `口腔医学` **不可靠**——它是口腔执业医师
+  整卷分类，含大量通科医学题（药理/儿科/妇产/统计/伦理/传染病等）。内容级检测发现约 **35%–42%**
+  是非牙科。详见 `reports/cn_dental_content_report.md` 与 `data/check_cn_dental_content.py`。
+- **干净子集**：`data/prepare_cn_dental_clean.py` 用「内容级牙科关键词（扩充后）+ 临床科室=口腔科」重筛，
+  产出 `data/cn_dental_clean/`（train 381 / val 80 / test 84），训练/消融改用此集。
+  相比初版干净集（340/73/76）多回收 56 题真牙科，详见 `reports/cn_dental_rescreen_report.md`。
 - 查询：
   ```bash
-  python3 data/check_dental_subset.py data/cn_dental/test.jsonl   # 应输出 [PASS]
+  python3 data/check_dental_subset.py data/cn_dental/test.jsonl   # 旧工具：应 [PASS]（但只查学科字段，见下）
+  python3 data/check_cn_dental_content.py data/cn_dental          # 内容级检测（发现污染）
   ```
 
 ### 2.3 英文全科（MedQA + MMLU，无印度 MedMCQA）
@@ -73,4 +79,9 @@
 
 ## 4. 牙科判定依据（一句话）
 
-> 中文牙科用学科字段「口腔医学」；英文牙科用 R1 强关键词（tooth/dental/caries/enamel/…）+ R2 "oral" 的明确口腔语境（oral cavity / oral mucosa / oral health / …），**裸 "oral"（口服）与裸 "mucosa"/"crown" 一律不算牙科**。判定与命中明细由 `dental_filter.py` 给出，`check_dental_subset.py` 逐题审计。
+> 中文牙科**不能只靠**学科字段「口腔医学」（2026-09-01 检测发现其含 35%–42% 通科医学题），
+> 需用 `data/check_cn_dental_content.py` 的**内容级中文关键词**（龋/牙髓/牙周/颌/牙龈/釉质/根管/
+> 口腔/义齿/正畸/咬合/银汞/固定桥/阿弗他/白斑/舌癌…）重筛 → `cn_dental_clean`。
+> 英文牙科用 R1 强关键词（tooth/dental/caries/enamel/…）+ R2 "oral" 的明确口腔语境，
+> **裸 "oral"（口服）与裸 "mucosa"/"crown" 一律不算牙科**。判定与命中明细由
+> `dental_filter.py`（英文）+ `check_cn_dental_content.py`（中文内容级）给出。

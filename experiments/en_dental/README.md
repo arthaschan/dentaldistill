@@ -6,16 +6,19 @@
 - 说明：本仓库**用牙科专属数据重新训练**（不同于 mentalDistill 28 复用 27 的 adapter），
   且已修复 "oral" 误判、并入 3 本书。
 
-## 数据（data/en_dental/，已审计全牙科）
+## 数据（data/en_dental/，R1 严格口径零非牙科）
 | 集合 | 条数 | 来源 |
 |---|---|---|
-| train | 497 | MedQA/MMLU 牙科 219 + 书籍(BoF/NBDE) 278 |
+| train | 566 | MedQA 200 + MMLU 1 + 书籍(BoF 142 / NBDE 223) |
 | val | 26 | MedQA/MMLU 牙科 |
-| test | 85 | MedQA/MMLU 牙科 |
+| test | 84 | MedQA/MMLU 牙科 |
 
-> 牙科判定：R1 强关键词 + R2 "oral" 口腔语境（裸 "oral" 排除），见 `data/dental_filter.py`。
-> 生成：`data/prepare_en_dental.py`（依赖 `books/extract_*.py` + `books/normalize_books.py`）。
-> 审计：`python3 data/check_dental_subset.py data/en_dental/test.jsonl`（应 [PASS]）。
+> 牙科判定：`data/dental_filter.py` 的 **R1 严格口径**（`is_dental_record_strict`，只用强牙科词
+> tooth/dental/gingivitis/periodontal/…，**剔除 R2 "oral" 语境**）。
+> 原因：R2 的 oral ulcer/lesion/cavity/candidiasis/thrush 是「全身病的口腔表现」，会把精神分裂
+> （oral health）、肺炎（oral lesion）、Zenker 憩室（oral cavity）等非牙科题误判为牙科。
+> 详见 `reports/en_dental_audit.md`（含 50 道 R2 边界题清单与严格/宽两种口径的取舍）。
+> 生成：`data/prepare_en_dental.py`（已改严格口径）；审计：`python3 data/audit_en_dental.py data/en_dental`。
 
 ## 训练参数
 Choice-Head 蒸馏，α=0；LoRA rank16/alpha32；lr 1e-4；batch 1×8；1 epoch；seed 42；Llama-70B QLoRA 4bit。

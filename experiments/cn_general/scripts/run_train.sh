@@ -22,7 +22,8 @@ for seed in "${SEEDS[@]}"; do
     --output_dir "$out" --num_epochs 1 --batch_size 1 --gradient_accumulation_steps 8 \
     --learning_rate 1e-4 --rank 16 --lora_alpha 32 --alpha 0.0 \
     --default_distill_mask 1 --seed "$seed" --deterministic \
-    > "$out/train.log" 2>&1
+    > "$out/train.log" 2>&1 \
+    || { echo "[FAIL] seed=$seed rc=$? 见 $out/train.log"; exit 1; }
   touch "$out/DONE"
 done
 

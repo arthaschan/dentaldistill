@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 英文牙科：Qwen2.5-32B 学生（牙科专属数据），α=0 纯 GT，1 epoch，seed 42。
-# 数据 data/en_dental/（train 497 / val 26 / test 85，已审计全牙科、含 3 本书）。
+# 数据 data/en_dental/（train 566 / val 26 / test 84，R1 严格口径零非牙科、含 2 本书牙科题）。
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../../.."   # -> dentaldistill/
 source setup.env 2>/dev/null || true

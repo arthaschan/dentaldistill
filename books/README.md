@@ -2,6 +2,9 @@
 
 > 来源：`mentalDistill/fullEnglish/book/`。版权教材，PDF 不提交 git（.gitignore 排除 `*.pdf`），
 > 仅保留提取脚本与规整后的 jsonl 由脚本重建。
+>
+> **题目情况、多选题影响评估、最终安排（哪些进英文牙科/全科、哪些不并入）见
+> `books/BOOKS_ARRANGEMENT.md`（权威文档）。**
 
 ## 三本书
 
@@ -26,10 +29,14 @@ python3 books/normalize_books.py
 
 # 3. 并入英文牙科数据（去重、避开 test，再用牙科判定过滤）
 python3 data/prepare_en_dental.py
+
+# 4. 多选题影响评估（演示为什么 MCQ 多选不并入单选）
+python3 books/eval_multiselect_impact.py
 ```
 
 ## 说明
 
 - 书籍题用 `data/dental_filter.py` 的 R1/R2 规则二次过滤（书里"Human Disease/Pharmacology"章节有少量非牙科题，会被剔除）。
-- 单选（BoF+NBDE）并入英文牙科 train；true/false（MCQ）为不同任务，作为辅助集保留，不混入单选蒸馏。
+- 单选（BoF+NBDE）并入英文牙科 train（净 +278：BoF 93 + NBDE 185）；true/false（MCQ）为不同任务，作为辅助集保留，不混入单选蒸馏。
+- **MCQ 是 true/false 多选（84% 答案为多字母集合如 "ADE"），与单候选 A–E 任务格式不兼容：训练会给错监督、评估不可评分，故不并入英文训练/测试**（详见 `BOOKS_ARRANGEMENT.md` §2 与 `eval_multiselect_impact.py`）。
 - 字段统一为 `uid, Question, Options("A …\nB …"), Answer, n_options, source, subject`（与 MedQA/MMLU 一致）。
