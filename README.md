@@ -24,9 +24,10 @@
 |---|---|---|---|
 | 中文牙科(84 干净) | DeepSeek-V4-flash 86.90% | Qwen2.5-32B 86.90%（3seed） | **打平**（Qwen3-32B 仅 79.76%） |
 | 英文全科(4110) | Qwen3-32B 80.22% | Qwen2.5-32B 82.09% / Llama-70B 81.39% | **双超越** ✅ |
-| 英文牙科(84 严格) | Qwen3-32B 66.67% | Llama-70B 67.86%（3seed） / Qwen2.5-32B 64.29% | 仅 Llama 微弱超 ⚠️ |
+| 英文牙科(84 严格) | Qwen3-32B 66.67% | Qwen2.5-32B 66.27%（3seed） / Llama-70B 67.06%（6seed） | 打平（无稳定超越） |
 
 > 完整结果与复现见 `TASK_STATUS.md` 与各 `experiments/*/RESULTS_*.md`。
+> 英文牙科 3-seed 坐实结论与「超越不成立」论证见 `OVERNIGHT_REPORT_2026-09-03.md`。
 > 牙科数据「无非牙科」已核实：`python3 data/check_no_nondental.py`（退出码 0），见 `reports/data_check_report.md`。
 
 ---

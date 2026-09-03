@@ -94,6 +94,7 @@ python3 data/check_dental_subset.py data/en_dental/test.jsonl     # 应 [PASS]
 - [x] 4 场景训练/评估已落地本仓库数字（见 `TASK_STATUS.md` 与各 `RESULTS_*.md`）
 - [x] 中文牙科教师 DeepSeek 零样本已调 API 生成（`teachers/`）
 
-待办（GPU 续跑）：
-- [ ] 英文牙科 Qwen2.5-32B 最优 rank8/lr3e-4/e1 跑 3 seed 坐实（`experiments/en_dental/scripts/run_train_qwen25_best_3seed.sh`，已备好）
-- [ ] 英文牙科 Llama-70B 细扫续跑（`ablation/run_sweep_en_dental_llama70b.sh`，断点跳过）→ 找最优 → 3 seed 坐实
+待办（GPU 续跑）—— **✅ 已于 2026-09-03 夜间全部完成**：
+- [x] 英文牙科 Qwen2.5-32B 最优 rank8/lr3e-4/e1 跑 3 seed 坐实 → 均值 66.27%（细扫 70.24% 不可复现）
+- [x] 英文牙科 Llama-70B 细扫续跑（12 组）→ 最优=默认 r16/lr1e-4 → 两轮 3-seed 共 6 seed 均值 67.06%（打平教师）
+- 结论与过程见 `OVERNIGHT_REPORT_2026-09-03.md`。
