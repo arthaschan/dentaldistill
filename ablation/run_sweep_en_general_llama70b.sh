@@ -36,7 +36,7 @@ for rank in "${RANKS[@]}"; do
         --rank "$rank" --lora_alpha $((rank*2)) --alpha 0.0 \
         --default_distill_mask 1 --seed $SEED --deterministic --quantize 4bit \
         > "$out/train.log" 2>&1 \
-        || { echo "[FAIL] $name rc=$? 见 $out/train.log"; exit 1; }
+        || { echo "[FAIL] $name rc=$? 见 $out/train.log"; echo -e "$rank\t$lr\t$ep\tNA\tNA" >> "$RESULT"; continue; }
       val_acc=$(grep -a '\[VAL\]' "$out/train.log" | tail -1 | grep -oE 'acc=[0-9.]+' | head -1 | cut -d= -f2)
       echo "[$(date +%H:%M:%S)] EVAL(test) $name"
       test_acc=$("$PY" shared/eval_choice_head.py --model "$STUDENT" --adapter "$out" \
