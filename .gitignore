@@ -9,8 +9,7 @@
 **/outputs/
 
 # 数据集：派生自版权书籍/CMExam 的题目文本，不公开重分发（可由脚本重建）
-*.jsonl
-data/*.jsonl
+ 
 books/*.jsonl
 
 # 日志
