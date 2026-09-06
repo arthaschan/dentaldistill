@@ -63,6 +63,12 @@ STRONG_EXACT = [
     "maxilla", "maxillary", "pulpitis", "pulpal", "pulpotomy", "pulpectomy",
     "odontogenic", "odontoma", "odontoblast", "palate", "palatal", "toothache",
     "molar", "canine",
+    # 口腔内科/唾液腺（v3 补：原 v2 漏掉口腔软组织/唾液腺词汇，导致 Oral Medicine 类牙科题被误杀）
+    "salivary", "saliva", "sialadenitis", "sialolith", "sialorrhea", "xerostomia",
+    "parotid", "submandibular", "sublingual", "aphthous", "aphthae", "leukoplakia",
+    "stomatitis", "gingivostomatitis", "glossitis", "cheilitis", "pericoronitis",
+    "chlorhexidine", "halitosis", "mouthwash", "mouthrinse", "frenum", "frenulum",
+    "frenectomy",
 ]
 _EXACT_RE = re.compile(
     r"\b(" + "|".join(re.escape(k) for k in STRONG_EXACT) + r")\b", re.IGNORECASE,

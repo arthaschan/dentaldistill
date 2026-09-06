@@ -32,7 +32,7 @@ import re
 from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dental_filter import is_dental_record, dental_match, question_text  # noqa: E402
+from dental_filter import is_dental_record, dental_match, dental_match_strict, question_text  # noqa: E402
 
 # ---- 中文强牙科关键词（内容级）----
 # 只收录「医学语境下几乎必然牙科」的词，避免误报：
@@ -95,6 +95,44 @@ _CN_STRONG_RE = re.compile("|".join(sorted(CN_STRONG, key=len, reverse=True)))
 def cn_hits(text: str):
     """返回命中明细 [(规则, 词), ...]。空 = 无牙科信号。"""
     return [("C1", m.group(0)) for m in _CN_STRONG_RE.finditer(text)]
+
+
+# ---- 严格版（用于无学科标签的 train.csv / val.csv 挖矿，抬高 precision）----
+# 单字（solo 命中不算牙科，须命中多字牙科词）。龋 例外（单字也高度牙科）。
+CN_SINGLE_CHARS = {"牙", "齿", "颌", "龈", "腭"}
+
+# 泛化/神经/普外歧义词：solo 命中不算牙科（这些词在其它科室同样高频出现）。
+CN_BLOCKLIST = {
+    # 颅神经（神经内科/解剖，非牙科专属）
+    "三叉神经", "面神经", "舌咽神经", "舌下神经", "舌神经",
+    # 神经/普外解剖
+    "海绵窦", "切开引流", "流涎", "血管瘤", "脉管畸形",
+    # 可发生于全身任何部位的囊肿
+    "皮脂腺囊肿", "皮样囊肿", "表皮样囊肿", "黏液囊肿",
+    # 泛化词（皮肤/关节/骨骼也高频）
+    "盘状红斑狼疮", "氟骨症", "牙关", "弹响", "角化层", "黏液腺",
+}
+
+
+def cn_hits_strict(text: str):
+    """严格版中文命中：剔除单字歧义 + 泛化/神经/普外歧义词。"""
+    hits = []
+    for m in _CN_STRONG_RE.finditer(text):
+        w = m.group(0)
+        if w in CN_BLOCKLIST or w in CN_SINGLE_CHARS:
+            continue
+        hits.append(("C1", w))
+    return hits
+
+
+def content_signal_strict(record: dict):
+    """严格版内容级信号：C1 严格中文词 + 英文 R1（不含 R2 oral 语境）。
+
+    用于从无学科标签的原始 CSV（train.csv / val.csv）挖矿，precision 更高
+    （~86.5% vs 全量 76.6%，实测于 test_with_annotations.csv 地面真值）。
+    """
+    text = question_text(record)
+    return cn_hits_strict(text) + dental_match_strict(text)
 
 
 def content_signal(record: dict):
